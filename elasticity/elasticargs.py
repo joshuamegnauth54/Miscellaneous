@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import xml.etree.ElementTree as ET
 from argparse import ArgumentParser
 
 
@@ -31,9 +32,10 @@ def parse_args(arguments):
     partisan, elastic
     """
 
-    # To-do: I'd rather load these from a file instead of hardcoding URLs
-    if not arguments.partisan:
-        arguments.partisan = "https://github.com/fivethirtyeight/data/raw/master/partisan-lean/fivethirtyeight_partisan_lean_DISTRICTS.csv"
+    datasetlnks = ET.parse("datasets.xml").getroot()
+    argumentsdict = vars(arguments)
 
-    if not arguments.elastic:
-        arguments.elastic = "https://github.com/fivethirtyeight/data/raw/master/political-elasticity-scores/elasticity-by-district.csv"
+    for key, value in argumentsdict.items():
+        if not value:
+            argumentsdict[key] = (datasetlnks.findall('.//dataset[@name="' +
+                                                      key + '"]/url')[0].text)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasetlinks>
+
+	<dataset name="partisan">
+		<url>https://github.com/fivethirtyeight/data/raw/master/partisan-lean/fivethirtyeight_partisan_lean_DISTRICTS.csv</url>
+	</dataset>
+
+	<dataset name="elastic">
+		<url>https://github.com/fivethirtyeight/data/raw/master/political-elasticity-scores/elasticity-by-district.csv</url>
+	</dataset>
+
+</datasetlinks>
