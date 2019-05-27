@@ -5,32 +5,38 @@ from argparse import ArgumentParser
 
 
 def create_args():
-    """
-    Creates an ArgumentParser and sets the valid inputs.
+    """Creates an ArgumentParser and sets the valid inputs.
     The logic here is that the caller may wish to override the paths for
     the required datasets.
     """
     varargs = ArgumentParser()
 
-    varargs.add_argument("-partisan", help="Override the path for the "
-                                           "Partisan Leaning dataset "
-                                           "(FiveThirtyEight)")
+    partisan_help = ("Override the default path to FiveThirtyEight's "
+                     "Partisan Leaning dataset.")
+    varargs.add_argument("-p", "--partisan", help=partisan_help)
 
-    varargs.add_argument("-elastic", help="Override the path for the "
-                                          " Elasticity dataset "
-                                          "(FiveThirtyEight)")
+    elastic_help = ("Override the default path to FiveThirtyEight's "
+                    "Elasticity dataset.")
+    varargs.add_argument("-e", "--elastic", help=elastic_help)
 
     return varargs.parse_args()
 
 
 def parse_args(arguments):
-    """
-    In this function we check if the caller overrode any of the arguments.
+    """In this function we check if the caller overrode any of the arguments.
     If not, we set the defaults.
 
-    :param arguments: An argparse.Namespace with the following attributes;
+    :param arguments: An argparse.Namespace with the following attributes:
     partisan, elastic
     """
+# =============================================================================
+#     Load the file with the default paths to the datasets (datasets.xml).
+#     We also need to create a dictionary to loop over from our arguments.
+#
+#     If no path is set in our arguments object, we use the dictionary key
+#     which is also the 'name' attribute of the dataset tag to get the default
+#     path. Look at datasets.xml if this is confusing.
+# =============================================================================
 
     datasetlnks = ET.parse("datasets.xml").getroot()
     argumentsdict = vars(arguments)
