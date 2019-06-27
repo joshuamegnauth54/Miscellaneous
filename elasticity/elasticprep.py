@@ -21,8 +21,12 @@ def partelast_colsplit(pe_merge):
     del pe_merge["pvi_538"]
     pe_merge.columns = ["elasticity", "party", "partisanlean"]
 
+    # Create the state feature
+    pe_merge["state"] = pe_merge.index.str.split("-")[0]
+    pe_merge.state = pe_merge.state.astype("category")
+
     pe_merge.party = pe_merge.party.astype("category")
-    pe_merge.partisanlean = pe_merge.partisanlean.apply(pd.to_numeric)
+    pe_merge.partisanlean = pd.to_numeric(pe_merge.partisanlean)
 
     return pe_merge
 
@@ -47,4 +51,3 @@ def load_files(overrides):
                            sort=True, copy=False)
 
     return pe_merge
-
