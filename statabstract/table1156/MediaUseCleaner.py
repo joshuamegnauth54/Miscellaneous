@@ -4,15 +4,6 @@ import pandas as pd
 import re
 from collections import defaultdict
 
-"""
-General process:
-    1. Drop nulls
-    2. Strip Item
-    3. Set Item to Index
-    4. Slice each variable (i.e. ages)
-    5.
-"""
-
 
 class MediaUseCleaner:
     __columns = {"Item": "observation",
@@ -26,7 +17,7 @@ class MediaUseCleaner:
                  "Newspaper reading": "newspaper",
                  "Internet use": "internet",
                  "Internet use in past 30 days": "internet_thirtydays",
-                 "Accessed internet": "internet_thirtydays"}
+                 "Accessed Internet": "internet_thirtydays"}
 #    __format_base = "observation == '{}'"
 
 #    def _query_string(self) -> str:
@@ -74,10 +65,10 @@ class MediaUseCleaner:
         df.columns = df.columns.str.replace(self.__col_regex, " ")
         df.columns = df.columns.str.strip()
         df.drop(columns=["Total population ( ,000)"], inplace=True)
-        df.rename(columns=MediaUseCleaner._columns, inplace=True)
+        df.rename(columns=MediaUseCleaner.__columns, inplace=True)
         df = pd.melt(df, id_vars=["observation"], value_name="frequency")
         df.variable = df.variable.astype("category")
-        df.value = pd.to_numeric(df.value)
+        df.frequency = pd.to_numeric(df.frequency)
         df["year"] = int(year)
 
         return df
@@ -87,10 +78,42 @@ class MediaUseCleaner:
         # This triggers a warning about setting a value on a copy, but that is
         # exactly what I want.
         gender.rename(columns={"observation": "gender"}, inplace=True)
-        gender.set_index("variable", inplace=True)
+        gender.gender = gender.gender.astype("category")
 
-        self.__clean_dict["gender"] = self.__clean_dict["gender"].append(
-                gender)
+        self.__clean_dict["gender"] = pd.concat([self.__clean_dict["gender"],
+                                                gender], ignore_index=True)
+
+    def __age(self, df: pd.DataFrame):
+        age = df.query("observation == '18 to 24 years old' |"
+                       "observation == '25 to 34 years old' |"
+                       "observation == '35 to 44 years old' |"
+                       "observation == '45 to 54 years old' |"
+                       "observation == '55 to 64 years old' |"
+                       "observation == '65 years old and over'")
+
+        age.rename(columns={"observation": "age_years"}, inplace=True)
+        age.age_years = age.age_years.map({"18 to 24 years old": "18-24",
+                                           "25 to 34 years old": "25-34",
+                                           "35 to 44 years old": "35-44",
+                                           "45 to 54 years old": "45-54",
+                                           "55 to 64 years old": "55-64",
+                                           "65 years old and over": "65+"})
+        age.age = age.age.astype("category")
+
+        self.__clean_dict["age"] = pd.concat([self.__clean_dict["age"],
+                                             age], ignore_index=True)
+
+    def __race(self, df: pd.DataFrame):
+        racedf = df.query("observation == 'White only' | "
+                          "observation == 'Black only' | "
+                          "observation == 'Other races/multiple "
+                          "classifications'")
+
+        racedf.rename(columns={"observation": "race"}, inplace=True)
+        racedf.race = racedf.race.map({"White only": "white",
+                                       "Black only": "black",
+                                       "Other races/multiple classifications":
+                                           "other"})
 
     def __init__(self, path: str):
         """Creates a cleaner for the Statistical Abstract's Table 1156.
@@ -125,6 +148,10 @@ class MediaUseCleaner:
         self.__clean_dispatcher()
 
     def __clean_dispatcher(self) -> pd.DataFrame:
-        for key, df in self._unclean.items():
-            self._clean_general_media(key, df)
+        for key, df in self.__unclean.items():
+            df = self._clean_general_media(key, df)
             self.__gender(df)
+            self.__age(df)
+            self.__race(df)
+            self.__employment(df)
+            self.__income(df)
