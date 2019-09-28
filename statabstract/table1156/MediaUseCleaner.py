@@ -4,6 +4,8 @@ import pandas as pd
 import re
 from collections import defaultdict
 
+from . import MUCData
+
 # =============================================================================
 # To do:
 # 1. Throw all of the query strings into their own class or load them from a
@@ -13,24 +15,6 @@ from collections import defaultdict
 
 
 class MediaUseCleaner:
-    __columns = {"Item": "observation",
-                 "Total population ( ,000)": "total_pop",
-                 "Television viewing": "tv",
-                 "Television prime time viewing": "tv_prime",
-                 "Cable/pay TV viewing": "cable",
-                 "Cable TV viewing": "cable",
-                 "Cable viewing": "cable",
-                 "Radio listening": "radio",
-                 "Newspaper reading": "newspaper",
-                 "Internet use": "internet",
-                 "Internet use in past 30 days": "internet_thirtydays",
-                 "Accessed Internet": "internet_thirtydays",
-                 "Accessed internet": "internet_thirtydays"}
-#    __format_base = "observation == '{}'"
-
-#    def _query_string(self) -> str:
-#        pass
-
     def _clean_general_media(self, year: str,
                              df: pd.DataFrame) -> pd.DataFrame:
         """Performs general cleaning operations for each spreadsheet.
@@ -73,16 +57,16 @@ class MediaUseCleaner:
         df.columns = df.columns.str.replace(self.__col_regex, " ")
         df.columns = df.columns.str.strip()
         df.drop(columns=["Total population ( ,000)"], inplace=True)
-        df.rename(columns=MediaUseCleaner.__columns, inplace=True)
+        df.rename(columns=MUCData.columns, inplace=True)
         df = pd.melt(df, id_vars=["observation"], value_name="percent")
         df.variable = df.variable.astype("category")
-        df.frequency = pd.to_numeric(df.frequency)
+        df.percent = pd.to_numeric(df.percent)
         df["year"] = int(year)
 
         return df
 
     def __gender(self, df: pd.DataFrame):
-        genderdf = df.query("observation == 'Male' | observation == 'Female'")
+        genderdf = df.query(MUCData.qgender)
         # This triggers a warning about setting a value on a copy, but that is
         # exactly what I want.
         genderdf.rename(columns={"observation": "gender"}, inplace=True)
@@ -92,76 +76,41 @@ class MediaUseCleaner:
                                                 genderdf], ignore_index=True)
 
     def __age(self, df: pd.DataFrame):
-        agedf = df.query("observation == '18 to 24 years old' | "
-                         "observation == '25 to 34 years old' | "
-                         "observation == '35 to 44 years old' | "
-                         "observation == '45 to 54 years old' | "
-                         "observation == '55 to 64 years old' | "
-                         "observation == '65 years old and over'")
+        agedf = df.query(MUCData.qage)
 
         agedf.rename(columns={"observation": "age_years"}, inplace=True)
-        agedf.age_years = agedf.age_years.map({"18 to 24 years old": "18-24",
-                                               "25 to 34 years old": "25-34",
-                                               "35 to 44 years old": "35-44",
-                                               "45 to 54 years old": "45-54",
-                                               "55 to 64 years old": "55-64",
-                                               "65 years old and over": "65+"})
+        agedf.age_years = agedf.age_years.map(MUCData.age_map)
         agedf.age_years = agedf.age_years.astype("category")
 
         self.__clean_dict["age"] = pd.concat([self.__clean_dict["age"],
                                              agedf], ignore_index=True)
 
     def __race(self, df: pd.DataFrame):
-        racedf = df.query("observation == 'White only' | "
-                          "observation == 'Black only' | "
-                          "observation == 'Other races/multiple "
-                          "classifications'")
-
+        racedf = df.query(MUCData.qrace)
         racedf.rename(columns={"observation": "race"}, inplace=True)
-        racedf.race = racedf.race.map({"White only": "white",
-                                       "Black only": "black",
-                                       "Other races/multiple classifications":
-                                           "other"})
-
+        racedf.race = racedf.race.map(MUCData.race_map)
         racedf.race = racedf.race.astype("category")
         self.__clean_dict["race"] = pd.concat([self.__clean_dict["race"],
                                               racedf], ignore_index=True)
 
     def __employment(self, df: pd.DataFrame):
-        employdf = df.query("observation == '..Full time' | "
-                            "observation == '..Part time' | "
-                            "observation == 'Not employed'")
+        employdf = df.query(MUCData.qemploy)
         employdf.rename(columns={"observation": "employment"}, inplace=True)
-        employdf.employment = employdf.employment.map({"..Full time": "full",
-                                                       "..Part time": "part",
-                                                       "Not employed": "none"})
-
+        employdf.employment = employdf.employment.map(MUCData.employ_map)
         employdf.employment = employdf.employment.astype("category")
         self.__clean_dict["employment"] = pd.concat([
                 self.__clean_dict["employment"], employdf], ignore_index=True)
 
     def __income(self, df: pd.DataFrame):
-        incomedf = df.query("observation == 'Less than $50,000' | "
-                            "observation == '..$50,000 to $74,999' | "
-                            "observation == '..$75,000 to $149,999' | "
-                            "observation == '..$150,000 or more'")
+        incomedf = df.query(MUCData.qincome)
         incomedf.rename(columns={"observation": "income"}, inplace=True)
-        # Definitely need a better way to handle these strings
-        tempmap = {"Less than $50,000": "<50000",
-                   "..$50,000 to $74,999": "50000-74999",
-                   "..$75,000 to $149,999": "75000-149999",
-                   "..$150,000 or more": "150000+"}
-        incomedf.income = incomedf.income.map(tempmap)
+        incomedf.income = incomedf.income.map(MUCData.income_map)
         incomedf.income = incomedf.astype("category")
-
         self.__clean_dict["income"] = pd.concat([self.__clean_dict["income"],
                                                 incomedf], ignore_index=True)
 
     def __school(self, df: pd.DataFrame):
-        schooldf = df.query("observation == 'Not high school graduate' | "
-                            "observation == 'High school graduate' | "
-                            "observation == 'Attend college' | "
-                            "observation == 'College graduate'")
+        schooldf = df.query(MUCData.qeducation)
 
         if (schooldf.empty):
             # This is a verrryyyy temporary solution
@@ -169,11 +118,7 @@ class MediaUseCleaner:
             return
 
         schooldf.rename(columns={"observation": "school"}, inplace=True)
-        tempmap = {"Not high school graduate": "no_highschool",
-                   "High school graduate": "highschool",
-                   "Attend college": "in_college",
-                   "College graduate": "fin_college"}
-        schooldf.school = schooldf.school.map(tempmap)
+        schooldf.school = schooldf.school.map(MUCData.education_map)
         schooldf.school = schooldf.school.astype("category")
 
         self.__clean_dict["school"] = pd.concat([self.__clean_dict["school"],
@@ -211,7 +156,17 @@ class MediaUseCleaner:
                   .format(last_object))
         self.__clean_dispatcher()
 
-    def __clean_dispatcher(self) -> pd.DataFrame:
+    def __clean_dispatcher(self):
+        """Calls each of the individual cleaning functions on each DataFrame.
+        (Each DataFrame is an Excel sheet from the loaded data.)
+        A general cleaning function is first called to spruce up the DataFrame
+        before the individual cleaners can work with it.
+        The individual cleaning functions each handle a different variable.
+        Each function filters out observations pertaining to the specific
+        variable into a new DataFrame. The resulting DataFrame has values
+        renamed if necessary followed by being merged into a DataFrame that
+        holds that variable.
+        """
         for key, df in self.__unclean.items():
             df = self._clean_general_media(key, df)
             self.__gender(df)
