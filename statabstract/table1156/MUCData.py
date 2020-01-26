@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
 from typing import Dict
 
 namemap = Dict[str, str]
 
-# =============================================================================
-# @dataclass(init=False, repr=False, eq=False, order=False, unsafe_hash=True,
-#            frozen=False)
-# =============================================================================
+
 class MUCData:
     __slots__ = ()
 
@@ -76,3 +72,10 @@ class MUCData:
                               "High school graduate": "highschool",
                               "Attend college": "in_college",
                               "College graduate": "fin_college"}
+
+    # Misc
+    nodata: str = ("{} query returned an empty DataFrame for {}. Note: This is"
+                   " usually not a major problem.")
+
+    cleanfailed: str = ("Error: Cleaning did not succeed."
+                        "Keys: %s")

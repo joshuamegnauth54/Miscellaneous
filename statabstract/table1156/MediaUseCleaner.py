@@ -3,15 +3,10 @@
 import pandas as pd
 import re
 from collections import defaultdict
+from typing import OrderedDict
+from copy import deepcopy
 
 from . import MUCData
-
-# =============================================================================
-# To do:
-# 1. Throw all of the query strings into their own class or load them from a
-# text file.
-# 2. Add more error checking/warnings.
-# =============================================================================
 
 
 class MediaUseCleaner:
@@ -66,9 +61,20 @@ class MediaUseCleaner:
         return df
 
     def __gender(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         genderdf = df.query(MUCData.qgender)
-        # This triggers a warning about setting a value on a copy, but that is
-        # exactly what I want.
+
+        if genderdf.empty:
+            print(MUCData.nodata.format("Gender", df.year[0]))
+            return
+
         genderdf.rename(columns={"observation": "gender"}, inplace=True)
         genderdf.gender = genderdf.gender.astype("category")
 
@@ -76,7 +82,19 @@ class MediaUseCleaner:
                                                 genderdf], ignore_index=True)
 
     def __age(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         agedf = df.query(MUCData.qage)
+
+        if agedf.empty:
+            print(MUCData.nodata.format("Age", df.year[0]))
+            return
 
         agedf.rename(columns={"observation": "age_years"}, inplace=True)
         agedf.age_years = agedf.age_years.map(MUCData.age_map)
@@ -86,7 +104,20 @@ class MediaUseCleaner:
                                              agedf], ignore_index=True)
 
     def __race(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         racedf = df.query(MUCData.qrace)
+
+        if racedf.empty:
+            print(MUCData.nodata.format("Race", df.year[0]))
+            return
+
         racedf.rename(columns={"observation": "race"}, inplace=True)
         racedf.race = racedf.race.map(MUCData.race_map)
         racedf.race = racedf.race.astype("category")
@@ -94,7 +125,20 @@ class MediaUseCleaner:
                                               racedf], ignore_index=True)
 
     def __employment(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         employdf = df.query(MUCData.qemploy)
+
+        if employdf.empty:
+            print(MUCData.nodata.format("Employment", df.year[0]))
+            return
+
         employdf.rename(columns={"observation": "employment"}, inplace=True)
         employdf.employment = employdf.employment.map(MUCData.employ_map)
         employdf.employment = employdf.employment.astype("category")
@@ -102,7 +146,20 @@ class MediaUseCleaner:
                 self.__clean_dict["employment"], employdf], ignore_index=True)
 
     def __income(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         incomedf = df.query(MUCData.qincome)
+
+        if incomedf.empty:
+            print(MUCData.nodata.format("Income", df.year[0]))
+            return
+
         incomedf.rename(columns={"observation": "income"}, inplace=True)
         incomedf.income = incomedf.income.map(MUCData.income_map)
         incomedf.income = incomedf.astype("category")
@@ -110,11 +167,18 @@ class MediaUseCleaner:
                                                 incomedf], ignore_index=True)
 
     def __school(self, df: pd.DataFrame):
+        """See documentation for __clean_dispatcher(MediaUseCleaner) for more
+        information.
+
+        Parameters
+        ----------
+        df: pandas.DataFrame
+            Excel sheet from table1156.xls represented as a Pandas DataFrame.
+        """
         schooldf = df.query(MUCData.qeducation)
 
         if (schooldf.empty):
-            # This is a verrryyyy temporary solution
-            print("No school data: {}".format(df.year[0]))
+            print(MUCData.nodata.format("Education", df.year[0]))
             return
 
         schooldf.rename(columns={"observation": "school"}, inplace=True)
@@ -127,7 +191,10 @@ class MediaUseCleaner:
     def __init__(self, path: str):
         """Creates a cleaner for the Statistical Abstract's Table 1156.
         The data is split into multiple spreadsheets indexed by year with the
-        current year labeled as 'Current.'
+        current year labeled as 'Current.' As the Statistical Abstract consists
+        mostly of summary tables, cleaning this data is more of a practice
+        exercise with the added benefit that I can produce some neat charts
+        out of it.
 
         My cleaner returns a dictionary with the observational units as keys
         and the DataFrames as values.
@@ -141,6 +208,7 @@ class MediaUseCleaner:
         self.__unclean = pd.read_excel(path, header=2, sheet_name=None)
         self.__clean_dict = defaultdict(pd.DataFrame)
         self.__col_regex = re.compile(r"[\n|\\1|\\2]+")  # I hate RegEx
+        self.__is_clean = False
 
         years_range = sorted(self.__unclean.keys())  # Note: keys are the years
         last_object = years_range[-1]  # Should be 'Current'
@@ -175,3 +243,12 @@ class MediaUseCleaner:
             self.__employment(df)
             self.__income(df)
             self.__school(df)
+        # We can presume cleaning succeeded if we reached this point (?)
+        self.__is_clean = True
+
+    def clean(self) -> OrderedDict[str, pd.DataFrame]:
+        if self.__is_clean:
+            return deepcopy(self.__clean_dict)
+        else:
+            raise RuntimeError(MUCData.cleanfailed.format(
+                    self.__clean_dict.keys()))
