@@ -1,0 +1,262 @@
+---
+title: "Assignment 1 - Data 712"
+author: "Joshua Megnauth"
+date: "February 7, 2020"
+output:
+  html_document:
+    highlight: zenburn
+    theme: darkly
+    df_print: paged
+---
+
+## Introduction
+
+Data cleaning is an important yet misunderstood aspect of the data processing pipeline. Cleaning data is auxilliary to data analysis. Of course, "cleaning" of any sort reeks of tedium, and data cleaning itself is a boilerplate process. Regardless, implementing a proper, reuseable data cleaning pipeline is important for ensuring that data are handled smoothly.
+
+The data set used for this assignment is a subset of the 2018 [General Social Survey](https://gss.norc.org/).
+
+## Libraries and our data
+The first step is to load the libraries we will be using for cleaning. The open source [tidyverse](https://www.tidyverse.org/) libraries neatly organize the problem domain into functions that flow into a pipeline. Reshaping data is easier with tidyr, for example, which allows a programmer or data scientist to focus on the data set's _problems_ rather than engineering a solution. Tidyverse's constructs are seemingly higher level than base R (from my newbie exploration at least). Base R's API is similar to C/C++ as indicated by functions such as strftime ([R](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime) and [C](https://en.cppreference.com/w/cpp/chrono/c/strftime)). Tidyverse provides a cleaner interface that is more suited for a domain specific language. I've noticed that the Pandas library for Python---which I'm more familiar with---uses a paradigm strikingly similar for tabular data as tidyverse.
+
+First I load stringr, tidyr, and dplyr which all have useful functions for data cleaning.
+
+```{r includes, results="hide"}
+library(assertthat)
+library(stringr)
+library(tidyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+Next, we have to load our data set subset from the G.S.S.
+```{r load_gss}
+gss_df <- read.csv("GSSExtract.csv")
+```
+
+## Exploring our data
+
+Data sets are often dirty in _different_ yet _predictable_ ways. Problems include but are not limited to: 
+
+* incorrect types
+* untidy data
+* strange values (id est **neither** outliers nor missing data but incorrect scores)
+* duplicate observations
+* missing values coded as numbers
+
+For example, numerical scores may be incorrectly typecast as strings. Data sources may encode missing values as 99, -1, or others which would require replacing with nulls. Data sources often have code books that directly list these magic numbers.
+
+**Example (G.S.S.)**
+
+>VALUE LABEL  
+>1     MALE  
+>2     FEMALE  
+>Data type: numeric  
+>Missing-data code: 0  
+>Record/column: 1/9  
+
+First, let's explore our data.
+
+```{r summary_gss}
+summary(gss_df)
+```
+
+The [summary](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/summary) function provides a set of summary statistics for each variable. Of course not every summary statistic is appropriate for each variable in a data set, but the summary function is a good first step. Summary provides a few interesting insights here. The AGE (ALL CAPS!!!) variable has a maximum value of 99 which may or may not be legitimate. WORDSUM has a maximum or 99 and a minimum of -1 which warrants further analysis. AGEWED seems to be entirely nonexistent. Many of these variables have a maximum of 9 which is probably a [magic number](https://en.wikipedia.org/wiki/Magic_number_(programming)).
+
+Before we move on, I'll convert all of the column names to lower case because all caps variables are annoying for coding, should be reserved for #defines and enums only, and, most egregiously, too reminiscent of SAS.
+
+```{r lowercase_cols}
+colnames(gss_df) <- str_to_lower(colnames(gss_df))
+```
+
+Next, let us take a gander at some of the scores for the variables. Base R's [head](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/head) and [glimpse](https://www.rdocumentation.org/packages/dplyr/versions/0.3/topics/glimpse) from dplyr.
+
+```{r head_glimpse}
+head(gss_df)
+glimpse(gss_df)
+```
+
+The functions head and glimpse present a, well, glimpse of our data. The two functions show more or less the same information: a handful of observations. Glimpse is more compact which is great for a broader overview after head. Most of our variables seem to be either nominal or ordinal. The CON* variables must be melted into one variable in order for our data to be tidy. All of our variables are integers---a good sign as that means they're not mangled with characters.
+
+As I mentioned above, this data set is full of magic numbers to represent special values, such as nulls. Thus, this data set is deceptively missing any missing values. To prove it:
+
+```{r assert_no_nulls}
+assert_that(!sum((is.na(gss_df))))
+```
+
+And this is why code books must always be checked.
+
+Finally, my favorite exploration technique is to print frequency distributions and/or draw histograms of the data.
+
+```{r frequency}
+column_names <- colnames(gss_df) # Avoids calling colnames() twice.
+
+for (column in 3:length(column_names)) { # Let's skip id and age.
+  current_name <- column_names[column]
+  print(paste("Column #", column, " = ", current_name, sep = ""))
+  print(table(gss_df[[current_name]]))
+}
+  
+#rm(column_names)
+
+hist(gss_df$age)
+```
+
+## Cleaning our subset
+
+Our data aren't that messy, all problems considered. The first major problem is to melt our data frame so that the con* variables are represented in two variables. The first variable will hold the column headers of the con variables as those are the names of the specific confidence measurements. The second variable will contain the actual values for the confidence measurements.
+
+```{r melting_con}
+gss_df <- gather(gss_df, key = "conf_measure", value = "conf_scores",
+                 str_subset(column_names, "con[a-z]+"))
+
+head(gss_df)
+```
+
+The next step is to recode the magic numbers. First I'll recode the missing values to NA. I personally prefer reusable solutions that can be deployed as part of a pipeline. I'll introduce a pattern I've used for two data cleaning homework assignments in the past.
+
+```{r recode_nulls}
+gss_na_filter <- function() {
+  # Lists are preferable here as data.frames cannot have uneven row counts
+  # per column.
+  #
+  # The data below is straight from the code book.
+  gss_filternas <- list(
+    age = c(0, 98, 99),
+    sex = c(0),
+    racehisp = c(9),
+    uscitzn = c(0, 8, 9),
+    degree = c(-1, 7:9),
+    wordsum = c(-1, 98, 99),
+    wrkstat = c(0, 9),
+    marital = c(0, 9),
+    agewed = c(0, 98, 99),
+    conf_scores = c(0, 8, 9)
+  )
+  return(gss_filternas)
+}
+
+gss_filternas <- gss_na_filter()
+filternas_name <- names(gss_filternas)
+
+# First, I create a boolean array of rows with the null values.
+# Next, I simply filter the data.frame and select the column (important!)
+# whereby the missing values are set to NA.
+for (column in filternas_name) {
+  filter_boolean <- gss_df[[column]] %in% gss_filternas[[column]] 
+  gss_df[filter_boolean, column] <- NA
+}
+
+rm(filternas_name, gss_filternas) # We don't need these anymore
+glimpse(gss_df)
+print(paste("Null count: ", sum(is.na(gss_df))))
+
+```
+
+At first glance the paradigm above appears overly complicated and annoying. However, the above process allows us to create a pipeline to clean further data. Imagine that the NA map above (gss_filternas) is stored in a file. We can easily write a function that takes in a column name and data points to clean. After cleaning, the function can return a data.frame to be merged/joined into existing data. Secondly, such a process allows us to have good software design. The actual data points are separated from the implementation that actually cleans the data.
+
+Anywho. We have a relatively clean data set. The next (optional?) step is to convert nominal and ordinal level variables to factors.
+
+```{r pretty_scores}
+gss_fix_scores <- function() {
+  # See gss_na_filter()
+  gss_scores <- list(
+    sex = c("Male", "Female"),
+    racehisp = c("White", "Black", "Hispanic", "Other"),
+    uscitzn = c("Citizen", "Not citizen",
+                "Citizen PR, Virgin Islands, Marianas", "Citizen Outside US"),
+    degree = c("No HS", "HS", "Jr college", "Bachelor", "Graduate"),
+    wrkstat = c("Full", "Part", "Temp not working", "Unemp", "Retired",
+                "School", "House", "Other"),
+    marital = c("Married", "Widowed", "Divorced", "Separated", "Never"),
+    conf_measure = NULL, # The names are fine. See the for loop below for info.
+    conf_scores = c("A great deal", "Only some", "Hardly any")
+  )
+  return(gss_scores)
+}
+gss_scores <- gss_fix_scores()
+scores_cols <- names(gss_scores)
+
+for (column in scores_cols) {
+  gss_df[[column]] <- factor(gss_df[[column]])
+  new_values <- gss_scores[[column]]
+  
+  # If our renamer is NULL we're factorizing the variable without recoding
+  # anything.
+  if (length(new_values)) {
+    levels(gss_df[[column]]) <- new_values
+  }
+}
+
+remove(gss_scores, scores_cols) # We're done with these.
+head(gss_df)
+```
+
+## Homework questions
+```{r homework}
+conf_freq <- as.data.frame(table(gss_df[c("conf_measure", "conf_scores")]))
+conf_meas <- unique(conf_freq["conf_measure"])
+great_ratio <- matrix()
+
+for (measure in conf_meas) {
+  values <- conf_freq[conf_freq$conf_measure == measure, "Freq"]
+  #print(values)
+  great_ratio[measure] <- values[1]/sum(values)
+}
+
+print(great_ratio)
+```
+
+Ignore that. It's six am, but I can't get the above to work. Admittedly, I know how to do it in Python. I'll fix it another day. I'll just do the questions by hand in spaghetti code.
+
+### Question 1
+
+```{r}
+print(paste("The median age of this sample is", median(gss_df$age,
+                                                       na.rm = TRUE)))
+```
+
+### Question 2
+
+```{r}
+sex <- table(gss_df$sex)
+print(paste("Percent female: ", round(sex["Female"]/sum(sex), 3) * 100))
+```
+
+### Question 3
+```{r}
+school <- table(gss_df$degree)
+nohs <- school["No HS"]/sum(school)
+grad <- school["Graduate"]/sum(school)
+print(nohs)
+print(grad)
+```
+
+The proportion of people who dropped out of high school is larger than the proportion of people who finished graduate school.
+
+### Question 4
+```{r}
+marriage <- table(gss_df$marital)
+divorced <- marriage["Divorced"]/sum(marriage) * 100
+
+print(paste(divorced, "% of our sample is divorced.", sep = ""))
+```
+
+### Question 5
+```{r}
+# I can't figure out how to answer this question another way.
+df <- spread(gss_df, conf_measure, conf_scores)[11:23]
+conf_names <- colnames(df)
+top <- ""
+buffer <- 0
+
+for (col in conf_names) {
+  temp <- table(df[[col]])
+  current <- temp["A great deal"]/sum(temp)
+  
+  if (current > buffer) {
+    buffer <- current
+    top <- col
+  }
+}
+
+print(paste(top, "is the institution Americans trust most."))
+```
