@@ -1,0 +1,191 @@
+---
+title: "Assignment_2"
+author: "Joshua Megnauth"
+date: "February 25, 2020"
+output:
+  html_document:
+    theme: darkly
+    highlight: zenburn
+    df_print: paged
+---
+
+## Introduction
+
+Rather than write up some tedious introduction which would *surely* kill my limited time, I shall jump right into the purpose of this document. I will clean the _American National Election Survey_ (A.N.E.S.) data in the first section along with some limited explanations of my process. The second section will consist of plots and other measures unless I somehow radically botch the first section.
+
+
+## Data cleaning; boilerplate stuff
+
+```{r preliminary}
+library(readxl)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(dplyr, warn.conflicts = FALSE)
+
+codebook <- read_xlsx("ANES\ 2016.xlsx") # Sheet 1 = codebook
+anes <- read_xlsx("ANES\ 2016.xlsx", sheet = 2) # Sheet 2 = data
+```
+
+Spreadsheets are often _monstrosities_ owing to the verbose format which includes the support of embedding scripts for some reason. With that said, the A.N.E.S. spreadsheet is rather pleasant data; this is always exciting.
+
+```{r not_a_monstrosity}
+head(anes)
+glimpse(anes)
+sum(is.na(anes))
+```
+
+The A.N.E.S. data has three problems. One problem is structural as we should melt the _feel.*_ columns. The second problem is stylistic: I don't really like magic numbers in data sets that are shaped to analyze. The third problem is _metaphysicial._ I don't have the slightest clue what to do with weights as I'm entirely new to statistics.
+
+Anyway, I can only handle the first two problems until I make reading time. So let's get to that now!
+
+## Data cleaning
+
+```{r melt}
+anes <- gather(anes, key = "feel_topics", value = "feel_rating", 
+               unlist(str_extract_all(colnames(anes), "(feel.*)")))
+
+anes$feel_topics <- str_replace_all(anes$feel_topics, "(feel.)", "")
+anes[anes$feel_rating > 100 || anes$feel_rating < 0, "feel_rating"] <- NA
+head(anes)
+```
+
+The first statement simply melts the feel.* columns into one column. The second statement squelches the "feel." portion of the metrics.
+
+Finally, the third statement just ensures the values of the rating column lay within the range.
+
+## Readable values
+
+The last step before analysis is to fix up the magic numbers.
+
+```{r pretty_values}
+anes_replacer <- function() {
+  anes_replacer_df <- list(
+    religious = c(FALSE, TRUE),
+    age.group = c("18-20", "21-24","25-29", "30-34", "35-39", "40-44", "45-49",
+                  "50-54", "55-59", "60-64", "65-69", "70-84", "75+"),
+    education = c("Less than High School", "High School or Equivalent",
+                  "College Degree", "Graduate School"),
+    race = c("White, Non-Hispanic", "Black, Non-Hispanic", "Asian",
+             "Native American", "Hispanic", "Other"),
+    vote16 = c("Clinton", "Trump", "Other")
+  )
+  return(anes_replacer_df)
+}
+
+anes_replacer_df <- anes_replacer()
+for (column in names(anes_replacer_df)) {
+  anes[[column]] <- as.factor(anes[[column]])
+  levels(anes[[column]]) <- anes_replacer_df[[column]]
+}
+rm(anes_replacer_df)
+
+head(anes)
+```
+
+The paradigm above would normally involve loading the values to replace in the data frame from a file, but obviously I won't bother with that here.
+
+## Descriptive statistics
+```{r effectsize}
+effect_size <- function(first, second) {
+  #If this doesn't work I'll probably look very dumb
+  first_len <- length(first) - 1
+  second_len <- length(second) - 1
+ 
+  diff_mean <- mean(first, na.rm = TRUE) - mean(second, na.rm = TRUE)
+  pooled_denom <- (first_len + second_len)
+  pooled_nom <- (first_len * var(first, na.rm = TRUE)
+                 + second_len * var(second, na.rm = TRUE))
+  
+  pooled_sd <- sqrt(pooled_nom/pooled_denom)
+  
+  return(diff_mean/pooled_sd)
+}
+```
+
+```{r descriptive}
+anes %>%
+  group_by(vote16, feel_topics) %>%
+  summarize(mean(feel_rating, na.rm = TRUE), sd(feel_rating, na.rm = TRUE),
+            median(feel_rating, na.rm = TRUE), IQR(feel_rating, na.rm = TRUE))
+```
+
+Admittedly this produces a mess, but at least the mess is somewhat manageable. We're able to observe a few relationships to explore further.
+
+```{r scotus}
+anes_scotus <- anes %>%
+  group_by(vote16) %>%
+  filter(feel_topics == "scotus")
+
+anes_scotus %>%
+  summarize(scotus_mean = mean(feel_rating, na.rm = TRUE),
+            scotus_sd = sd(feel_rating, na.rm = TRUE))
+
+clinton <- anes_scotus %>% filter(vote16 == "Clinton")
+trump <- anes_scotus %>% filter(vote16 == "Trump")
+
+print(paste("Partisan views on SCOTUS effect size:",
+            effect_size(clinton$feel_rating, trump$feel_rating)))
+
+anes_scotus %>% ggplot(aes(x = vote16, y = feel_rating)) +
+  geom_boxplot()
+```
+
+```{r bigbusiness}
+anes_bigbiz <- anes %>%
+  group_by(vote16) %>%
+  filter(feel_topics == "bigbiz")
+
+anes_bigbiz %>%
+  summarize(biz_mean = mean(feel_rating, na.rm = TRUE),
+            biz_mean_sd = sd(feel_rating, na.rm = TRUE))
+
+clinton <- anes_bigbiz %>% filter(vote16 == "Clinton")
+trump <- anes_bigbiz %>% filter(vote16 == "Trump")
+
+print(paste("Partisan views on big business effect size:",
+            effect_size(clinton$feel_rating, trump$feel_rating)))
+
+anes_bigbiz %>% ggplot(aes(x = vote16, y = feel_rating)) +
+  geom_boxplot()
+```
+
+```{r congress}
+anes_congress <- anes %>%
+  group_by(vote16) %>%
+  filter(feel_topics == "congress")
+
+anes_congress %>%
+  summarize(congress_mean = mean(feel_rating, na.rm = TRUE),
+            congress_sd = sd(feel_rating, na.rm = TRUE))
+
+clinton <- anes_congress %>% filter(vote16 == "Clinton")
+trump <- anes_congress %>% filter(vote16 == "Trump")
+
+print(paste("Partisan views on congress effect size:",
+            effect_size(clinton$feel_rating, trump$feel_rating)))
+
+anes_congress %>% ggplot(aes(x = vote16, y = feel_rating)) +
+  geom_boxplot()
+```
+
+```{r liberals}
+anes_liberals <- anes %>%
+  group_by(vote16) %>%
+  filter(feel_topics == "liberals")
+
+anes_liberals %>%
+  summarize(liberals_mean = mean(feel_rating, na.rm = TRUE),
+            liberals_sd = sd(feel_rating, na.rm = TRUE))
+
+clinton <- anes_liberals %>% filter(vote16 == "Clinton")
+trump <- anes_liberals %>% filter(vote16 == "Trump")
+
+print(paste("Partisan views on liberals effect size:",
+            effect_size(clinton$feel_rating, trump$feel_rating)))
+
+anes_liberals %>% ggplot(aes(x = vote16, y = feel_rating)) +
+  geom_boxplot()
+```
+
+(Yes, I realize I should've just written a function to do this, but it's almost six am again.)
