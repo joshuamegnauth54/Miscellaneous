@@ -1,0 +1,170 @@
+---
+title: "Assignment 3: Visualization"
+author: "Joshua Megnauth"
+date: "March 3, 2020"
+output:
+  html_document:
+    theme: darkly
+    highlight: zenburn
+    df_print: paged
+---
+## Introduction
+In this assignment, I will use a subset from the World Bank's [World Development Indicators](https://datacatalog.worldbank.org/dataset/world-development-indicators) data to visualize relationships between the variables.
+
+[Also! I ensure I execute scripts and such cleanly so I don't mangle my variables which is why I don't delete all of my objects at the beginning of a script.]
+```{r setup}
+library(readxl)
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2, warn.conflicts = FALSE)
+
+wdi <- read_xlsx("WDI 2015 Extract.xlsx")
+glimpse(wdi)
+summary(wdi)
+```
+
+## Glimpse of our data
+
+A quick examination of the first few rows reveals a healthy _(unhealthy?)_ amount of nulls. Luckily our variable types are correct so we're unlikely to have *nasty surprises*. The summary table doesn't feature any weirdness such as negative observations. Some variables have a minimum of zero. As the data are per _x_ people, we can conclude that some of these measurements can be near zero or zero depending on the state.
+
+Let's get a count of missing values per column in a manner easier to parse than summarize.
+
+```{r how_many_nulls}
+wdi_nulls <- apply(wdi, 2, function(col) {
+  sum(is.na(col))
+  })
+
+print(wdi_nulls)
+rm(wdi_nulls)
+```
+
+Some variables are missing about half of the observations! The measurement unit of the W.D.I. data is individual states. Variables that are missing over one hundred observations may be unusuable depending on our research/visualization.
+
+Anywho, let's move onto reshaping the data to produce pretty plots.
+
+## Reshaping the W.D.I. data
+
+I'd like to color the states by regions and subregions, but the data doesn't have regional codes. I found a CSV with the data quickly on GitHub to use. Obviously this is not ideal as the year for the two data sources must match up in case states were formed or reformed during the intervening period between the two data sets. However, this is clearly just quick, dirty, and fun.
+
+Thankfully, base R's [merge](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/merge) works basically the same as Pandas' (Python) [merge](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html).
+
+```{r merge_regions}
+#I'M CHEATING.
+regions_df <- read.csv("https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/all/all.csv")
+# Unfortunately, I don't know the best practice for including URLs in code.
+# So, that line will be ugly and pass the eighty character line limit.
+# I'm not going to bother making sure every state's name matches up.
+# (I would if I had to write a report or whatever of course!)
+
+regions_df <- regions_df[c("alpha.3", "region", "sub.region")]
+wdi_regions_ugly <- merge(wdi, regions_df, by.x = "ccode", by.y = "alpha.3")
+rm(regions_df)
+```
+
+We'll keep wdi_regions_ugly around for later; the data frame is too ugly to use for the other homework questions.
+
+```{r discrete_engineering_etc}
+# Question 4
+wdi$gdp_pc_nom <- cut(wdi$gdp.pc, c(0, 5000, 10000, 20000, 30000, Inf))
+wdi$gdp_pc_nom <- factor(wdi$gdp_pc_nom, ordered = TRUE,
+                         labels = c("Below $5k", "$5k - 10k","$10k - 20k",
+                                    "$20k - 30k", "Above $30k"))
+
+# Question 2
+qrange <-  c(0, .25, .75, 1)
+qlabels <- c("Low", "Medium", "High")
+
+wdi$gov.exp_fac <- cut(wdi$gov.exp, as.vector(quantile(wdi$gov.exp,
+                                                       qrange,
+                                                       na.rm = TRUE)))
+wdi$gov.exp_fac <- factor(wdi$gov.exp_fac, ordered = TRUE, labels = qlabels)
+wdi$hs.dropout_fac <- cut(wdi$hs.dropout, as.vector(quantile(wdi$hs.dropout,
+                                                             qrange,
+                                                             na.rm = TRUE)))
+wdi$hs.dropout_fac <- factor(wdi$hs.dropout_fac, ordered = TRUE,
+                             labels = qlabels)
+
+# Question 3
+wdi_regions_ugly$internet <- wdi_regions_ugly$internet/100
+
+# Clean up
+rm(qrange, qlabels)
+```
+
+According to the World Bank's site, internet is measured [per 1000 people](https://datacatalog.worldbank.org/internet-users-1000-people) while suicide is [per 100000](https://data.worldbank.org/indicator/SH.STA.SUIC.P5). I assume I have to fix these scales to plot them, so I divided internet by 100 above. However, I'm not sure if the information from the site applies to the 2015 data _or_ if I'm actually supposed to rescale the values. At this point I regret having two separate data frames as I started the graphs below but can't refactor everything due to time constraints.
+
+## Question 1
+
+```{r question_one}
+qone_clean <- na.omit(wdi_regions_ugly[c("pop.density", "region")])
+
+qone <- ggplot(qone_clean, aes(pop.density)) +
+  stat_bin(position = "dodge", binwidth = 250) +
+  #scale_y_log10() +
+  facet_grid(region ~ .) +
+  ggtitle("Distribution of population density") +
+  xlab("Population density") +
+  ylab("Frequency")
+
+qone
+rm(qone_clean)
+```
+
+The histogram above bins population density across the regions Africa, the Americas, Asia, Europe, and Oceania. Population density is heavily skewed by states such as China or Monaco.
+
+## Question 2
+
+```{r question_two}
+qtwo_clean <- na.omit(wdi[c("gov.exp_fac", "hs.dropout_fac")])
+qtwo_prop <- prop.table(table(qtwo_clean), 1)
+qtwo_plot <- data.frame(qtwo_prop)
+colnames(qtwo_plot) <- c("gov_exp", "hs_dropout", "proportion")
+
+qtwo <- ggplot(qtwo_plot, aes(gov_exp, proportion, fill = hs_dropout)) +
+  geom_bar(stat = "identity") +
+  ggtitle("High school drop out and government expenditures") +
+  xlab("Government expenditure") +
+  ylab("High school drop out rate")
+
+qtwo
+rm(qtwo_clean, qtwo_prop, qtwo_plot)
+```
+
+The plot above shows high school drop out rates versus government spending. Government spending is divided into three categories with the high school drop out variable mapped onto spending. The spending within the IQR and higher seems to be associated with states with low to medium levels of students who drop out of high school.
+
+## Question 3
+
+```{r question_three}
+qthree_clean <- na.omit(wdi_regions_ugly[c("internet", "suicide", "region",
+                                           "sub.region")])
+
+qthree <- ggplot(qthree_clean, aes(internet, suicide, color = region)) +
+  geom_jitter(shape = 21) +
+  #geom_smooth(method = "lm", se = FALSE) +
+  #facet_grid(region ~ .) +
+  scale_x_log10() +
+  ggtitle("Suicide rates versus internet availability") +
+  xlab("Internet availability") +
+  ylab("Suicide rates")
+  
+qthree
+rm(qthree_clean)
+```
+
+The plot above shows suicide rates and internet availability. The association between the two variables seems low, but some outliers exist in Europe and Asia.
+
+## Question 4
+
+```{r question_four}
+qfour_clean <- na.omit(wdi[c("gdp_pc_nom", "birth.rate")])
+
+qfour <- ggplot(qfour_clean, aes(gdp_pc_nom, birth.rate)) +
+  stat_summary(fun.y = mean, geom = "bar") +
+  ggtitle("Birth Rates & Wealth") +
+  xlab("Per Capita GDP") +
+  ylab("Birth Rate") +
+  ylim(c(0, 35)) +
+  scale_y_continuous(labels = seq(0, 35, by = 5), breaks = seq(0, 35, by = 5))
+
+qfour
+rm(qfour_clean)
+```
