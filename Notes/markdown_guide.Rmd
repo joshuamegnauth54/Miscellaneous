@@ -1,0 +1,34 @@
+---
+title: "RMarkdown_Tutorial"
+author: "Joshua Megnauth"
+date: "March 12, 2020"
+output:
+  html_document:
+    theme: darkly
+    highlight: zenburn
+    df_print: paged
+---
+
+# What is Markdown?
+
+[Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient scripting language for technical documents.
+
+Markdown is *simple* and *efficient* because a writer (id est, you) is able to focus on producing content rather than being impeded by technical details. As a quick example we can look at *bolding* or _italicizing_ text. Bolding text in office suites, such as the open source [LibreOffice](https://www.libreoffice.org/) or Microsoft Office, involves either pressing a button with your mouse _or_ using a keyboard shortcut such as _Ctrl-B_. [LaTeX](https://www.latex-project.org/) requires subcommands in order to bold.
+
+Bolding in Markdown is as simple as surrounding text with asterisks:
+
+```
+*Josh likes cats.*
+```
+
+This produces:
+
+*Josh likes cats.*
+
+Easy, right? Markdown (as well as LaTeX) follow the principle of _not_ distracting the writer from their content with extravagent user interfaces and incessant clicking. Ultimately, Markdown leads to efficient and effacious technical document production.
+
+The second major quality is Markdown's focus on *technical documents*. Technical documents are reports such as theses. Entire books have been written entirely in Markdown. Hadley Wickham is a prominent R programmer who has written and contributed to salient libraries . Wickham's well-known, free, and open source text [Advanced R](http://adv-r.had.co.nz/Introduction.html) as well as his [R For Data Science](https://r4ds.had.co.nz/) were written in Markdown.
+
+>"The book is written in RMarkdown with bookdown. It is automatically rebuilt from source by travis. R4DS is a collaborative effort and many people have >contributed fixes and improvements via pull request."
+
+Markdown's 
