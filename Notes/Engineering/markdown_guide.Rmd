@@ -13,7 +13,7 @@ output:
 
 [Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient scripting language for technical documents.
 
-Markdown is *simple* and *efficient* because a writer (id est, you) is able to focus on producing content rather than being impeded by technical details. As a quick example we can look at *bolding* or _italicizing_ text. Bolding text in office suites, such as the open source [LibreOffice](https://www.libreoffice.org/) or Microsoft Office, involves either pressing a button with your mouse _or_ using a keyboard shortcut such as _Ctrl-B_. [LaTeX](https://www.latex-project.org/) requires subcommands in order to bold.
+Markdown is *simple* and *efficient* because a writer (id est, you) is able to focus on producing content rather than being impeded by operational details. As a quick example we can look at *bolding* or _italicizing_ text. Bolding text in office suites, such as the open source [LibreOffice](https://www.libreoffice.org/) or Microsoft Office, involves either pressing a button with your mouse _or_ using a keyboard shortcut such as _Ctrl-B_. [LaTeX](https://www.latex-project.org/) requires subcommands in order to bold which looks a tad less tidy than Markdown.
 
 Bolding in Markdown is as simple as surrounding text with asterisks:
 
@@ -25,10 +25,12 @@ This produces:
 
 *Josh likes cats.*
 
-Easy, right? Markdown (as well as LaTeX) follow the principle of _not_ distracting the writer from their content with extravagent user interfaces and incessant clicking. Ultimately, Markdown leads to efficient and effacious technical document production.
+Easy, right? Markdown (as well as LaTeX) follows the principle of _not_ distracting the writer from their content with extravagent user interfaces and incessant clicking. Ultimately, Markdown leads to efficient and effacious technical document production despite having a learning curve in comparison to office suites.
 
-The second major quality is Markdown's focus on *technical documents*. Technical documents are reports such as theses. Entire books have been written entirely in Markdown. Hadley Wickham is a prominent R programmer who has written and contributed to salient libraries . Wickham's well-known, free, and open source text [Advanced R](http://adv-r.had.co.nz/Introduction.html) as well as his [R For Data Science](https://r4ds.had.co.nz/) were written in Markdown.
+The second major quality is Markdown's focus on *technical documents*. Technical documents are reports such as theses. Entire books have been written entirely in Markdown. Hadley Wickham is a prominent R programmer who has written and contributed to salient libraries---notably [ggplot2](https://ggplot2.tidyverse.org/) as well as the [tidyverse](https://tidyverse.org/). Wickham's well-known, free, and open source text [Advanced R](http://adv-r.had.co.nz/Introduction.html) as well as his [R For Data Science](https://r4ds.had.co.nz/) were written in Markdown.
 
 >"The book is written in RMarkdown with bookdown. It is automatically rebuilt from source by travis. R4DS is a collaborative effort and many people have >contributed fixes and improvements via pull request."
 
-Markdown's 
+Markdown allows _embedded_ and _syntax highlighted_ code blocks as well as LaTeX style mathematics symbols. Both of the aforementioned features vastly ease writing technical documents. Copying and pasting code to office suites is a task for masochists. Math often requires cumbersome extensions to properly use in G Suite or Microsoft Office. Office suites have strengths and pros, such as their ease of use---but Markdown and LaTeX are tools designed by and for scientists and engineers.
+
+Anywho. Let's jump into Markdown! I will introduce some but not all features in the following sections.
