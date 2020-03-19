@@ -13,11 +13,15 @@ output:
 
 [Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient [markup](https://en.wikipedia.org/wiki/Lightweight_markup_language) language designed for technical documents.
 
-Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Hypertext Markup Language (HTML) is a salient example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for editors to easily edit pages.  
+Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Consider jotting down notes for class (or notes to pass to a friend in class)--you may underline or box terms for emphasis. In other words, you mark up your text!
+
+You've likely encountered markup languages or have even used a few in your internet adventures. Hypertext Markup Language (HTML) is probably _the_ pervasive example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for editors to easily edit pages.
 
 ## What does that even mean?
 
-Markdown is *simple* and *efficient* because a writer (id est, you) is able to focus on producing content rather than being impeded by operational details. As a quick example we can look at *bolding* or _italicizing_ text. Bolding text in office suites, such as the open source [LibreOffice](https://www.libreoffice.org/) or Microsoft Office, involves either pressing a button with your mouse _or_ using a keyboard shortcut such as _Ctrl-B_. [LaTeX](https://www.latex-project.org/) requires subcommands in order to bold which looks a tad less tidy than Markdown.
+### Efficiency
+
+Markdown is **simple** and **efficient** because a writer (id est, you) is able to focus on producing content rather than being impeded by operational details. As a quick example we can look at **bolding** or _italicizing_ text. Bolding text in office suites, such as the open source [LibreOffice](https://www.libreoffice.org/) or Microsoft Office, involves either pressing a button with your mouse _or_ using a keyboard shortcut such as _Ctrl-B_. [LaTeX](https://www.latex-project.org/) requires subcommands in order to bold which looks a tad less tidy than Markdown.
 
 Bolding in Markdown is as simple as surrounding text with two pairs of asterisks or two pairs of underscores:
 
@@ -31,13 +35,35 @@ This produces:
 **Josh likes cats.**  
 __Josh likes coffee.__
 
-Easy, right? Markdown (as well as LaTeX) follows the principle of _not_ distracting the writer from their content with extravagent user interfaces and incessant clicking. Ultimately, Markdown leads to efficient and effacious technical document production despite having a learning curve in comparison to office suites.
+Easy, right? Markdown (as well as LaTeX and [Jupyter](https://www.jupyter.org)) follows the principle of _not_ distracting the writer from their content with extravagent user interfaces and cumbrous clicking. Ultimately, Markdown leads to efficient and effacious technical document production despite having a learning curve in comparison to office suites.
 
-The second major quality is Markdown's focus on *technical documents*. Technical documents are reports such as theses. Entire books have been written entirely in Markdown. Hadley Wickham is a prominent R programmer who has written and contributed to salient libraries---notably [ggplot2](https://ggplot2.tidyverse.org/) as well as the [tidyverse](https://tidyverse.org/). Wickham's well-known, free, and open source text [Advanced R](http://adv-r.had.co.nz/Introduction.html) as well as his [R For Data Science](https://r4ds.had.co.nz/) were written in Markdown.
+Markdown files are saved as plain text
 
->"The book is written in RMarkdown with bookdown. It is automatically rebuilt from source by travis. R4DS is a collaborative effort and many people have >contributed fixes and improvements via pull request."
+### Technical Documents
+
+The second major quality is Markdown's focus on **technical documents**. Technical documents are reports such as theses, analyses, papers, et cetera. In fact, entire books have been written entirely in Markdown. [Bookdown](https://bookdown.org/) is a project aimed at all of the wordsmiths out there who wish to write longer documents in Markdown. Hadley Wickham is a prominent R programmer who has written and contributed to salient libraries---notably [ggplot2](https://ggplot2.tidyverse.org/) as well as the [tidyverse](https://tidyverse.org/). Wickham's well-known, free, and open source text [Advanced R](http://adv-r.had.co.nz/Introduction.html) as well as his [R For Data Science](https://r4ds.had.co.nz/) were written in Bookdown and Markdown.
+
+>"The book is written in RMarkdown with bookdown. It is automatically rebuilt from source by travis. R4DS is a collaborative effort and many people have contributed fixes and improvements via pull request."
+
+Other notable texts include: 
+*[R Graphics Cookbook](https://r-graphics.org/) by Winston Chang
+*[R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) by Yihui Xie, J. J. Allaire, and Garrett Grolemund
+*[R for Calculus](https://dtkaplan.github.io/RforCalculus/preface.html) by [Daniel Kaplan](https://www.macalester.edu/~kaplan/)
+*[Statistical Modeling: A Fresh Approach](https://dtkaplan.github.io/SM2-bookdown/) by Daniel Kaplan
+
+But _why_ are so many (awesome) books written in Markdown? Good question.
 
 Markdown allows _embedded_ and _syntax highlighted_ code blocks as well as LaTeX style mathematics symbols. Both of the aforementioned features vastly ease writing technical documents. Copying and pasting code to office suites is a task for masochists. Math often requires cumbersome extensions to properly use in G Suite or Microsoft Office. Office suites have strengths and pros, such as their ease of use---but Markdown and LaTeX are tools designed by and for scientists and engineers.
+
+### Uh, Jupyter?
+
+Jupyter's official docs [define](https://jupyter-notebook.readthedocs.io/en/latest/notebook.html) a (Jupyter) notebook as:
+
+>"Notebook documents contains the inputs and outputs of a interactive session as well as additional text that accompanies the code but is not meant for execution. In this way, notebook files can serve as a complete computational record of a session, interleaving executable code with explanatory text, mathematics, and rich representations of resulting objects. These documents are internally JSON files and are saved with the .ipynb extension. Since JSON is a plain text format, they can be version-controlled and shared with colleagues.
+
+>Notebooks may be exported to a range of static formats, including HTML (for example, for blog posts), reStructuredText, LaTeX, PDF, and slide shows, via the nbconvert command."
+
+### Are you ready?
 
 Anywho. Let's jump into Markdown! I will introduce some but not all features in the following sections. Consider this guide as a bootstrap after which you may look up whatever else you wish to do with Markdown with ease. I recommend [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) which is, in fact, totally definitive.
 
