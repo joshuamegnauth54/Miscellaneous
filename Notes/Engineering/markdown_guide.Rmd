@@ -13,9 +13,9 @@ output:
 
 [Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient [markup](https://en.wikipedia.org/wiki/Lightweight_markup_language) language designed for technical documents.
 
-Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Consider jotting down notes for class (or notes to pass to a friend in class)--you may underline or box terms for emphasis. In other words, you mark up your text!
+Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Consider jotting down notes for class (or notes to pass to a friend in class)---you may underline or box terms for emphasis. In other words, you mark up your text! Marking up text may be as simple as highlighting terms or more elaborate such as using tables to categorize information.
 
-You've likely encountered markup languages or have even used a few in your internet adventures. Hypertext Markup Language (HTML) is probably _the_ pervasive example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for editors to easily edit pages.
+You've likely encountered markup languages or have even used a few in your internet adventures. Hypertext Markup Language (HTML) is probably _the_ pervasive example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for contributors to easily edit pages and add content that conforms to the defined standard.
 
 ## What does that even mean?
 
@@ -35,9 +35,7 @@ This produces:
 **Josh likes cats.**  
 __Josh likes coffee.__
 
-Easy, right? Markdown (as well as LaTeX and [Jupyter](https://www.jupyter.org)) follows the principle of _not_ distracting the writer from their content with extravagent user interfaces and cumbrous clicking. Ultimately, Markdown leads to efficient and effacious technical document production despite having a learning curve in comparison to office suites.
-
-Markdown files are saved as plain text
+Easy, right? Markdown (as well as LaTeX and [Jupyter](https://www.jupyter.org)) follows the principle of _not_ distracting the writer from their content with extravagant user interfaces and cumbrous clicking. Ultimately, Markdown leads to efficient and efficacious technical document production despite having a learning curve in comparison to office suites.
 
 ### Technical Documents
 
@@ -53,15 +51,21 @@ Other notable texts include:
 
 But _why_ are so many (awesome) books written in Markdown? Good question.
 
-Markdown allows _embedded_ and _syntax highlighted_ code blocks as well as LaTeX style mathematics symbols. Both of the aforementioned features vastly ease writing technical documents. Copying and pasting code to office suites is a task for masochists. Math often requires cumbersome extensions to properly use in G Suite or Microsoft Office. Office suites have strengths and pros, such as their ease of use---but Markdown and LaTeX are tools designed by and for scientists and engineers.
+Markdown allows _embedded_ and _syntax highlighted_ code blocks as well as LaTeX style mathematics symbols. Both of the aforementioned features vastly ease writing technical documents. Copying and pasting code to word processors is a task for masochists. Math often requires cumbersome extensions to properly use in G Suite or Microsoft Office. Office suites have strengths and pros, such as their ease of use---but Markdown and LaTeX are tools designed by and for scientists and engineers. Markdown files are saved as plain text rather than elaborate formats relying on XML or exotic binary representations. While plain text does not imply "technical," unknit Markdown files are easy to distribute and read without specialized tools---similar to source code, of course.
 
 ### Uh, Jupyter?
+
+**[You may skip this section if you don't know about Jupyter.]**
 
 Jupyter's official docs [define](https://jupyter-notebook.readthedocs.io/en/latest/notebook.html) a (Jupyter) notebook as:
 
 >"Notebook documents contains the inputs and outputs of a interactive session as well as additional text that accompanies the code but is not meant for execution. In this way, notebook files can serve as a complete computational record of a session, interleaving executable code with explanatory text, mathematics, and rich representations of resulting objects. These documents are internally JSON files and are saved with the .ipynb extension. Since JSON is a plain text format, they can be version-controlled and shared with colleagues.
 
 >Notebooks may be exported to a range of static formats, including HTML (for example, for blog posts), reStructuredText, LaTeX, PDF, and slide shows, via the nbconvert command."
+
+Does this sound familar? _(If not you should scroll up!)_ Most of the above applies to Jupyter as well as Markdown. Jupyter is functionally similar to Markdown but with different goals. Notebooks coupled with the Jupyter server allow for "live" sessions where code may be run dynamically. Markdown is usually knit to a static file, such as HTML or a PDF. The code, usually in _chunks,_ is executed wholesale.
+
+Jupyter Notebooks have _cells_ which are somewhat synonmous with chunks.
 
 ### Are you ready?
 
