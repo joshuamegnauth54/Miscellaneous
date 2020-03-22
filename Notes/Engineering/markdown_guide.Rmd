@@ -15,7 +15,7 @@ output:
 
 Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Consider jotting down notes for class (or notes to pass to a friend in class)---you may underline or box terms for emphasis. In other words, you mark up your text! Marking up text may be as simple as highlighting terms or more elaborate such as using tables to categorize information.
 
-You've likely encountered markup languages or have even used a few in your internet adventures. Hypertext Markup Language (HTML) is probably _the_ pervasive example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for contributors to easily edit pages and add content that conforms to the defined standard.
+You've likely encountered markup languages or have even used a few in your internet adventures. Hypertext Markup Language (HTML) is probably _the_ pervasive example of markup. [Media Wiki](https://www.mediawiki.org/wiki/MediaWiki) (Wikipedia and others) defines a [markup language](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Markup_Language) for contributors to easily edit pages and add content that conforms to the defined standard. GitHub Pages allows Markdown via [Jekyll](https://jekyllrb.com/).
 
 ## What does that even mean?
 
@@ -43,11 +43,12 @@ The second major quality is Markdown's focus on **technical documents**. Technic
 
 >"The book is written in RMarkdown with bookdown. It is automatically rebuilt from source by travis. R4DS is a collaborative effort and many people have contributed fixes and improvements via pull request."
 
-Other notable texts include: 
-*[R Graphics Cookbook](https://r-graphics.org/) by Winston Chang
-*[R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) by Yihui Xie, J. J. Allaire, and Garrett Grolemund
-*[R for Calculus](https://dtkaplan.github.io/RforCalculus/preface.html) by [Daniel Kaplan](https://www.macalester.edu/~kaplan/)
-*[Statistical Modeling: A Fresh Approach](https://dtkaplan.github.io/SM2-bookdown/) by Daniel Kaplan
+Other notable texts include:
+
+* [R Graphics Cookbook](https://r-graphics.org/) by Winston Chang
+* [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) by Yihui Xie, J. J. Allaire, and Garrett Grolemund 
+* [R for Calculus](https://dtkaplan.github.io/RforCalculus/preface.html) by [Daniel Kaplan](https://www.macalester.edu/~kaplan/) 
+* [Statistical Modeling: A Fresh Approach](https://dtkaplan.github.io/SM2-bookdown/) by Daniel Kaplan 
 
 But _why_ are so many (awesome) books written in Markdown? Good question.
 
@@ -59,13 +60,12 @@ Markdown allows _embedded_ and _syntax highlighted_ code blocks as well as LaTeX
 
 Jupyter's official docs [define](https://jupyter-notebook.readthedocs.io/en/latest/notebook.html) a (Jupyter) notebook as:
 
->"Notebook documents contains the inputs and outputs of a interactive session as well as additional text that accompanies the code but is not meant for execution. In this way, notebook files can serve as a complete computational record of a session, interleaving executable code with explanatory text, mathematics, and rich representations of resulting objects. These documents are internally JSON files and are saved with the .ipynb extension. Since JSON is a plain text format, they can be version-controlled and shared with colleagues.
-
+>"Notebook documents contains the inputs and outputs of a interactive session as well as additional text that accompanies the code but is not meant for execution. In this way, notebook files can serve as a complete computational record of a session, interleaving executable code with explanatory text, mathematics, and rich representations of resulting objects. These documents are internally JSON files and are saved with the .ipynb extension. Since JSON is a plain text format, they can be version-controlled and shared with colleagues. <br /><br />
 >Notebooks may be exported to a range of static formats, including HTML (for example, for blog posts), reStructuredText, LaTeX, PDF, and slide shows, via the nbconvert command."
 
-Does this sound familar? _(If not you should scroll up!)_ Most of the above applies to Jupyter as well as Markdown. Jupyter is functionally similar to Markdown but with different goals. Notebooks coupled with the Jupyter server allow for "live" sessions where code may be run dynamically. Markdown is usually knit to a static file, such as HTML or a PDF. The code, usually in _chunks,_ is executed wholesale.
+Does this sound familar? _(If not you should scroll up!)_ Most of the above applies to Jupyter as well as Markdown. Jupyter is functionally similar to Markdown but with different goals. Notebooks coupled with the Jupyter server allow for "live" sessions where code may be run dynamically with the result saved inline. Markdown is usually knit to a static file, such as HTML or a PDF. The code, usually in _chunks,_ is executed wholesale. Notebooks are designed with interactivity as a central goal. For example, DataCamp's [projects](https://www.datacamp.com/projects) feature consists of interactive lessons where students fill in the code to complete a data science assignment from start to finish. The _cells_ of a notebook may be executed singularly allowing students to edit and fix code in small chunks rather than writing an entire script. The output of each cell is displayed following the code with presentation designed to deliniate the cells which is similar to Markdown chunks. Jupyter's daemon runs kernels (say, an instance of Python) that execute code and keep state until the kernel is closed. Executing Markdown cell by cell pollutes your current environment.
 
-Jupyter Notebooks have _cells_ which are somewhat synonmous with chunks.
+RStudio's Notebook features combine the features of computational notebooks with traditional Markdown files. Realistically, functional usage of notebooks and Markdown are more similar than not unless you're working on something interactive. One notable disadvantage of Jupyter Notebooks is that files are saved in a JSON format to account for the session handling and continuity features mentioned above. Markdown allows for more customization (_id est,_ themes) while Jupyter provides interactivity.
 
 ### Are you ready?
 
