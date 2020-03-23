@@ -9,9 +9,9 @@ output:
     df_print: paged
 ---
 
-# What is Markdown?
+# What is R Markdown?
 
-[Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient [markup](https://en.wikipedia.org/wiki/Lightweight_markup_language) language designed for technical documents.
+[R Markdown](https://bookdown.org/yihui/rmarkdown/) is a simple and efficient [markup](https://en.wikipedia.org/wiki/Lightweight_markup_language) language designed for technical documents. R Markdown is a variation on the more general [Markdown](https://commonmark.org/) specification. I will use the two terms interchangeably in this document.
 
 Markup languages provide small syntaxes that "markup" documents to indicate elements of presentation. Consider jotting down notes for class (or notes to pass to a friend in class)---you may underline or box terms for emphasis. In other words, you mark up your text! Marking up text may be as simple as highlighting terms or more elaborate such as using tables to categorize information.
 
@@ -63,14 +63,22 @@ Jupyter's official docs [define](https://jupyter-notebook.readthedocs.io/en/late
 >"Notebook documents contains the inputs and outputs of a interactive session as well as additional text that accompanies the code but is not meant for execution. In this way, notebook files can serve as a complete computational record of a session, interleaving executable code with explanatory text, mathematics, and rich representations of resulting objects. These documents are internally JSON files and are saved with the .ipynb extension. Since JSON is a plain text format, they can be version-controlled and shared with colleagues. <br /><br />
 >Notebooks may be exported to a range of static formats, including HTML (for example, for blog posts), reStructuredText, LaTeX, PDF, and slide shows, via the nbconvert command."
 
-Does this sound familar? _(If not you should scroll up!)_ Most of the above applies to Jupyter as well as Markdown. Jupyter is functionally similar to Markdown but with different goals. Notebooks coupled with the Jupyter server allow for "live" sessions where code may be run dynamically with the result saved inline. Markdown is usually knit to a static file, such as HTML or a PDF. The code, usually in _chunks,_ is executed wholesale. Notebooks are designed with interactivity as a central goal. For example, DataCamp's [projects](https://www.datacamp.com/projects) feature consists of interactive lessons where students fill in the code to complete a data science assignment from start to finish. The _cells_ of a notebook may be executed singularly allowing students to edit and fix code in small chunks rather than writing an entire script. The output of each cell is displayed following the code with presentation designed to deliniate the cells which is similar to Markdown chunks. Jupyter's daemon runs kernels (say, an instance of Python) that execute code and keep state until the kernel is closed. Executing Markdown cell by cell pollutes your current environment.
+Does this sound familar? _(If not you should scroll up!)_
 
-RStudio's Notebook features combine the features of computational notebooks with traditional Markdown files. Realistically, functional usage of notebooks and Markdown are more similar than not unless you're working on something interactive. One notable disadvantage of Jupyter Notebooks is that files are saved in a JSON format to account for the session handling and continuity features mentioned above. Markdown allows for more customization (_id est,_ themes) while Jupyter provides interactivity.
+R Markdown and Jupyter both allow writers to express their code and outcomes in the same document. The major difference is that Jupyter is tailored towards interactive use while R Markdown allows interactivity as a feature but not the primary focus. Jupyter notebooks usually run on kernels on a local or remote server. Kernels are a manifestation of an instance. For example, if you loaded a notebook exploring a delightful cat data set and another on a coffee data set, both of those would run in their own separate instance on the same server. Separate instances coupled with a server architecture allows a system where multiple people---such as students or workers---can access, create, and edit a central repository of notebooks. [JupyterHub](https://jupyterhub.readthedocs.io/en/latest/) is an open source implementation of this concept whereas [DataCamp Projects](https://www.datacamp.com/projects) is a deployment.
 
 ### Are you ready?
 
 Anywho. Let's jump into Markdown! I will introduce some but not all features in the following sections. Consider this guide as a bootstrap after which you may look up whatever else you wish to do with Markdown with ease. I recommend [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) which is, in fact, totally definitive.
 
 # Basic text wrangling
+
+# A Small Discourse on Use
+
+Jupyter and R Markdown are implementations of what is known as **computational notebooks** with the teleogical goal of **literate programming.**
+
+The polymath Donald Knuth defines literate programming as: 
+>Let us change our traditional attitude to the construction of programs: Instead of imagining that our main task is to instruct a _computer_ what to do, let us concentrate rather on explaining to _human beings_ what we want a computer to do. <br />
+The practitioner of literate programming can be regarded as an essayist, whose main concern is with exposition and excellence of style. Such an author, with thesaurus in hand, chooses the names of variables carefully and explains what each variable means. He or she strives for a program that is comprehensible because its concepts have been introduced in an order that is best for human understanding, using a mixture of formal and informal methods that rëınforce each other.
 
 
