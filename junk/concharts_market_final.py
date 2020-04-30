@@ -62,3 +62,40 @@ def platform_sales_data() -> pd.DataFrame:
 
 def plat_sales_bar():
     return
+
+def howlongtobeat_data() -> pd.DataFrame:
+    """Data from: https://howlongtobeat.com/
+    https://www.metacritic.com/"""
+
+    finish_times = [{"Game": "Persona 5 Royal",
+                     "Main": 100,
+                     "Completionist": 143},
+                    {"Game": "Half-Life: Alyx",
+                     "Main": 11,
+                     "Completionist": 17},
+                    {"Game": "Animal Crossing: New Horizons",
+                     "Main": 61,
+                     "Completionist": 108},
+                    {"Game": "Red Dead Redemption 2",
+                     "Main": 41.5,
+                     "Completionist": 161},
+                    {"Game": "Resident Evil 2 (2019)",
+                     "Main": 8,
+                     "Completionist": 31},
+                    {"Game": "Doom (2016)",
+                     "Main": 11.5,
+                     "Completionist": 25.5},
+                    {"Game": "Sekiro: Shadows Die Twice",
+                     "Main": 28,
+                     "Completionist": 68.5},
+                    {"Game": "Monster Hunter: World - Iceborne",
+                    "Main": 36,
+                    "Completionist": 128},
+                    {"Game": "God of War",
+                     "Main": 20.5,
+                     "Completionist": 51},
+                    {"Game": "Celeste",
+                     "Main": 8,
+                     "Completionist": 36}]
+
+    return pd.DataFrame(finish_times)
