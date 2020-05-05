@@ -4,19 +4,22 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from typing import Tuple
+
 
 def platform_sales_data() -> pd.DataFrame:
-    """Data from: https://www.vgchartz.com/analysis/platform_totals/
+    """Creates and returns a DataFrame of selected console sales data to plot.
+
+    Data from: https://www.vgchartz.com/analysis/platform_totals/
     https://www.popsci.com/ouyas-sale-end-crowdsourced-console/
 
     You shouldn't actually use this function for anything. I needed to make
     some quick and dirty charts for a project in a class.
+
     Returns
     -------
     pandas.DataFrame
-        Returns a DataFrame with console sales data in millions.
-    """
-
+        Returns a DataFrame with console sales data in millions."""
     consales = [{"Console": "PlayStation 4",
                  "Generation": 8,
                  "Sales": 109.05},
@@ -60,8 +63,25 @@ def platform_sales_data() -> pd.DataFrame:
     sales_df.Generation = sales_df.Generation.astype("category")
     return sales_df
 
-def plat_sales_bar():
-    return
+
+def plat_sales_bar(size: Tuple[float]):
+    """Plot console sales data.
+
+    Returns
+    -------
+    None.
+    """
+    df = platform_sales_data()
+    fig, ax = plt.subplots(figsize=(size))
+    sns.barplot("Console", "Sales", data=df, hue="Generation", ci=None, ax=ax)
+    ax.set_xlabel("Console by generation (7/8)", weight="bold", size="large")
+    ax.set_ylabel("Sales (millions of units)", weight="bold", size="large")
+    ax.set_title("Generation 7/8 console sales in millions",
+                 weight="bold", size="xx-large")
+    ax.tick_params("x", labelrotation=45.0)
+
+    return (fig, ax)
+
 
 def howlongtobeat_data() -> pd.DataFrame:
     """Data from: https://howlongtobeat.com/
@@ -89,8 +109,8 @@ def howlongtobeat_data() -> pd.DataFrame:
                      "Main": 28,
                      "Completionist": 68.5},
                     {"Game": "Monster Hunter: World - Iceborne",
-                    "Main": 36,
-                    "Completionist": 128},
+                     "Main": 36,
+                     "Completionist": 128},
                     {"Game": "God of War",
                      "Main": 20.5,
                      "Completionist": 51},
@@ -99,3 +119,14 @@ def howlongtobeat_data() -> pd.DataFrame:
                      "Completionist": 36}]
 
     return pd.DataFrame(finish_times)
+
+
+# Fix later -_-
+if __name__ == "__main__":
+    sns.set_context("talk")
+    sns.set(style="whitegrid")
+    fig_size = (16.0, 12.0)
+
+    fig_sales, ax_sales = plat_sales_bar(fig_size)
+    fig_sales.show()
+    plt.show()
