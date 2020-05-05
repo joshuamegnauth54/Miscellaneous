@@ -72,7 +72,7 @@ def plat_sales_bar(size: Tuple[float]):
     None.
     """
     df = platform_sales_data()
-    fig, ax = plt.subplots(figsize=(size))
+    fig, ax = plt.subplots(figsize=size)
     sns.barplot("Console", "Sales", data=df, hue="Generation", ci=None, ax=ax)
     ax.set_xlabel("Console by generation (7/8)", weight="bold", size="large")
     ax.set_ylabel("Sales (millions of units)", weight="bold", size="large")
@@ -120,6 +120,19 @@ def howlongtobeat_data() -> pd.DataFrame:
 
     return pd.DataFrame(finish_times)
 
+
+def howlongtobeat_bar(size: Tuple[float]):
+    df = howlongtobeat_data()
+    df = pd.melt(df, id_vars=["Game"], var_name="Style", value_name="Hours")
+    fig, ax = plt.subplots(figsize=size)
+    sns.barplot("Game", "Hours", data=df, hue="Style", ci=None, ax=ax)
+    ax.set_xlabel(None)
+    ax.set_ylabel("Hours of game play", weight="bold", size="large")
+    ax.set_title("Hours of game time for selected top rated titles",
+                 weight="bold", size="xx-large")
+    ax.tick_params("x", labelrotation=45.0)
+
+    return (fig, ax)
 
 # Fix later -_-
 if __name__ == "__main__":
