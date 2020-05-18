@@ -1,0 +1,104 @@
+---
+title: "Incorrect Type Parsing - WDI"
+author: "Joshua Megnauth"
+output:
+  html_document:
+    theme: darkly
+    highlight: zenburn
+    df_print: paged
+---
+# The Problem
+
+```{r load_bad, warning=FALSE, message=FALSE}
+library(readxl)
+library(tidyverse)
+library(broom)
+
+broken_wdi <- read_xlsx("World Development Data.xlsx", sheet = 2)
+```
+
+The seemingly innocuous statement above has a major problem. R throws hundreds of exceptions during loading the **World Development Index** (henceforth WDI) data. Ignoring the warnings will lead to major headaches later during analysis. Luckily, fixing the problem is simple. First, I'll demonstrate what's wrong.
+
+Let's look at the warnings. The function [warnings()](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/warnings) lists over fifty lines that read more or less like so:
+
+```{html}
+50: In read_fun(path = enc2native(normalizePath(path)), sheet_i = sheet,  ... :
+  Expecting numeric in D1736 / R1736C4: got 'NA'
+```
+
+Admittedly, reading warning messages is painfully boring. Exceptions are also difficult to understand sometimes too!
+
+You can see that the error message involves **read_fun().** This function seems to be loading/reading our data judging from context clues such as _normalizePath(path)_ or _sheet._
+
+So we know that the warning involves reading our data. The warning itself states _Expecting numeric in [...]: got 'NA'._ Numerics are, of course, R's number type. 'NA' seems like a string rather than R's NA type, which is just NA. **Note the quotation marks in the former and lack of in the latter.**
+
+Now we may put everything together: R was expecting a number but got some strings. Sometimes R, Python, and other languages are able to parse and detect type errors when reading files given some heurestics. Generally the programmer must process edge cases themselves as dealing with every single parsing problem is intractable and impossible to code.
+
+Numbers encoding as strings is a huge problem. Can we perform mathematical operations on strings? Nope. The statistician that neglects to fix typing errors _will_ suffer for such later via incorrect analyses, script bugs, or crashes.
+
+# What can go wrong?
+```{r wdi_head, results='asis'}
+head(broken_wdi)
+```
+Scroll through the first few observations of the data frame a bit paying attention to the types listed between the **<>** symbols. Almost every single column that should be a number is a **<chr>** or a string! How silly.
+
+Attempting to calculate some descriptive statistics fails to an extent and is largely unreliable.
+
+I'll leave the warnings in so you get an idea of the problem.
+
+```{r wdi_descr, results='asis', message=FALSE}
+broken_wdi %>%
+  select(age.dep, democracy, econ.growth) %>%
+  summarize_all(list(~mean(.), ~sd(.), ~IQR(.)), na.rm = TRUE)
+```
+Notice the warnings. Some of the broken variables were coerced to doubles by eliding the strings. However, you shouldn't rely on behavior that may not work all of the time. Ignoring warnings is often dangerous.
+
+Regressions _don't work properly_ despite what we observed above with the descriptive stats. Let's look at an example
+
+```{r broken_wdi_regression, warning=FALSE, message=FALSE}
+broken_model <- lm(democracy ~ urban + age.dep, broken_wdi)
+
+tidy(broken_model, conf.int = TRUE)
+```
+
+**Wow! That's horrifying.**
+
+The variable _age.dep_ is a string and thus is treated as a factor. Essentially, our response variable is being predicted by `r length(unique(broken_wdi$age.dep))` different factors! You can avoid such egregious and confusing output by ensuring you clean your data!
+
+Luckily, fixing the problem is very simple in this case. The [read_xlsx()](https://readxl.tidyverse.org/reference/read_excel.html) function has an argument, _na,_ that automatically converts the supplied values to NA upon reading the file. All we need to do is set _na_ to the values in the data set that are actually NA but being loaded as strings. In other words, _na_ should be set to the improperly detected NAs. Let's do that now!
+
+```{r fix_wdi, results='asis'}
+wdi <- read_xlsx("World Development Data.xlsx", sheet = 2, na = c("", "NA"))
+head(wdi)
+```
+
+As you can see, the previously weird variables are all _doubles_ or _numerics_ now. Let's try our descriptive statistics again with the same variables.
+```{r better_wdi}
+wdi %>%
+  select(age.dep, democracy, econ.growth) %>%
+  summarize_all(list(~mean(.), ~sd(.), ~IQR(.)), na.rm = TRUE)
+```
+
+Beautiful!
+
+```{r better_reg_wdi}
+highdem_log <- wdi %>%
+  mutate(high_democracy = if_else(democracy > 1.25, TRUE, FALSE)) %>%
+  glm(high_democracy ~ econ.growth + gov.exp + pol.stability,
+      family = binomial, data = .)
+
+tidy(highdem_log, conf.int = TRUE, exponentiate = TRUE)
+```
+
+# Always explore and clean your variables
+
+Data sets should always be examined for magic numbers, improper typing, values outside of the domain of possibility, et cetera. **Don't stress out** if you miss these problems sometimes or even often. Unclean data will stand out to each of you with time and practice.
+
+Useful functions:
+
+- [head()/tail()](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/head)
+- [summary()](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/summary)
+- [dplyr::glimpse()](https://www.rdocumentation.org/packages/dplyr/versions/0.3/topics/glimpse)
+- [str()](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/str)
+- [is.na()/anyNA()](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/NA)
+
