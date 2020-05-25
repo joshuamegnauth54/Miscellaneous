@@ -1,3 +1,7 @@
 # Miscellaneous
 
-This repository is more ambiguous than the "Homework" moniker implies. Instead, I include homework as well as assorted, small projects or code that I'd rather not place into a separate repository. I am using this more as code backup than anything else.
+What is this repository?
+
+**I don't know.**
+
+I intend to use my _Miscellaneous_ repo to backup code or store random junk. I'm storing the _Markdown_ files for notes here until I have enough that I feel sufficiently comfortable in creating a _Notes_ repository.
