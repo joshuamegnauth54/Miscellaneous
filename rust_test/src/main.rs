@@ -3,12 +3,16 @@ use std::io::Write;
 use std::cmp::Ordering;
 use rand::Rng;
 
+const MIN_GUESS: i16 = 0;
+const MAX_GUESS: i16 = 101;
+
 fn main() {
-    let secret_guess = rand::thread_rng().gen_range(0, 101);
+    let secret_guess: i16 = rand::thread_rng().gen_range(MIN_GUESS, MAX_GUESS);
     let mut guess_input = String::new();
     let mut try_count = 0;
 
-    println!("Guess the correct number between 1-100.");
+    println!("Guess the correct number between {}-{}.",
+        MIN_GUESS, MAX_GUESS);
 
     loop {
         try_count = try_count + 1;
@@ -22,7 +26,7 @@ fn main() {
             .read_line(&mut guess_input)
             .expect("Failed to read from stdin.");
 
-        let guess: i32 = match guess_input.trim().parse() {
+        let guess: i16 = match guess_input.trim().parse() {
             Ok(num) => num,
             Err(_) => {
                 eprintln!("Numbers only.");
