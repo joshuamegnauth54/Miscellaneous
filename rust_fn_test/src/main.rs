@@ -1,3 +1,5 @@
+use rand::thread_rng;
+use rand_distr::{Distribution, Normal};
 use std::vec::Vec;
 
 fn abs(number: f64) -> f64 {
@@ -23,10 +25,24 @@ fn var(numbers: &Vec<f64>) -> f64 {
     var_tmp.iter().sum::<f64>() / var_tmp.len() as f64 - 1.0
 }
 
+fn std(numbers: &Vec<f64>) -> f64 {
+    var(numbers).sqrt()
+}
+
+fn factorial(n: u64) -> u64 {
+    if n == 1 {
+        1
+    } else {
+        n * factorial(n - 1)
+    }
+}
+
 fn main() {
+    let rng = thread_rng();
     println!("The absolute value of -32 is {}.", abs(-32.0));
 
     let numbers = vec![14.0, 28.0, 42.0];
     println!("Mean: {}", mean(&numbers));
-    println!("Variance: {}", var(&numbers));
+    println!("Variance: {} Std. Dev.: {}", var(&numbers), std(&numbers));
+    println!("10!: {}", factorial(10));
 }
