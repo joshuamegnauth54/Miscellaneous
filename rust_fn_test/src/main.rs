@@ -2,6 +2,9 @@ use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Normal};
 use std::vec::Vec;
 
+mod enum_test;
+use enum_test::Pokemans;
+
 const NORM_MEAN: f64 = 50.0;
 const NORM_STD: f64 = 25.0;
 
@@ -59,4 +62,14 @@ fn main() {
         std(&numbers)
     );
     println!("10!: {}", factorial(10));
+
+    let espeon = Pokemans::Espeon;
+    println!(
+        "Espeon is {}",
+        if espeon.is_kitty() {
+            "a kitty meow!"
+        } else {
+            "not a kitty. Nya..."
+        }
+    );
 }
