@@ -1,49 +1,15 @@
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Normal};
-use std::vec::Vec;
 
 mod enum_test;
 use enum_test::Pokemans;
+mod statstest;
+use statstest::statstest::{abs, factorial, mean, std, var};
 
 const NORM_MEAN: f64 = 50.0;
 const NORM_STD: f64 = 25.0;
 
-fn abs(number: f64) -> f64 {
-    if number >= 0.0 {
-        number
-    } else {
-        -number
-    }
-}
-
-fn mean(numbers: &Vec<f64>) -> f64 {
-    numbers.iter().sum::<f64>() / numbers.len() as f64
-}
-
-fn var(numbers: &Vec<f64>) -> f64 {
-    let mean = mean(numbers);
-    let mut var_tmp = numbers.clone();
-
-    for num in var_tmp.iter_mut() {
-        *num = (*num - mean).powi(2);
-    }
-
-    var_tmp.iter().sum::<f64>() / var_tmp.len() as f64 - 1.0
-}
-
-fn std(numbers: &Vec<f64>) -> f64 {
-    var(numbers).sqrt()
-}
-
-fn factorial(n: u64) -> u64 {
-    if n == 1 {
-        1
-    } else {
-        n * factorial(n - 1)
-    }
-}
-
-fn main() {
+fn math_stuff() {
     let mut rng = thread_rng();
 
     let abs_test = rng.gen_range(-25.0, 25.0);
@@ -62,7 +28,9 @@ fn main() {
         std(&numbers)
     );
     println!("10!: {}", factorial(10));
+}
 
+fn poke_test() {
     let espeon = Pokemans::Espeon;
     println!(
         "Espeon is {}",
@@ -72,4 +40,22 @@ fn main() {
             "not a kitty. Nya..."
         }
     );
+
+    let drampa = Pokemans::Drampa;
+    let vaporeon = Pokemans::Vaporeon;
+    println!(
+        "Vaporeon is generation {} while Drampa was introduced in gen {}.",
+        vaporeon.generation(),
+        drampa.generation()
+    );
+
+    let girafarig = Pokemans::Girafarig;
+    if girafarig.is_giraffe() {
+        println!("Girafarig is a giraffe. Yay psychic giraffe!");
+    }
+}
+
+fn main() {
+    math_stuff();
+    poke_test();
 }

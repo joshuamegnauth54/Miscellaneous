@@ -45,3 +45,29 @@ impl Pokemans {
         }
     }
 }
+
+#[test]
+fn test_everything() {
+    // Mostly to lazily silence dead code warnings
+
+    let pikachu = Pokemans::Pikachu;
+    let vaporeon = Pokemans::Vaporeon;
+    let jolteon = Pokemans::Jolteon;
+    let flareon = Pokemans::Flareon;
+    let mew = Pokemans::Mew;
+    let espeon = Pokemans::Espeon;
+    let umbreon = Pokemans::Umbreon;
+    let girafarig = Pokemans::Girafarig;
+    let skitty = Pokemans::Skitty;
+    let delcatty = Pokemans::Delcatty;
+    let drampa = Pokemans::Drampa;
+
+    assert_eq!(umbreon.is_kitty(), flareon.is_kitty());
+    assert!(mew.generation() == 1);
+    assert!(espeon.is_best() & vaporeon.is_best() & drampa.is_best());
+    assert!(girafarig.is_giraffe());
+    assert!(pikachu.generation() == jolteon.generation());
+    assert_eq!(skitty.is_kitty(), delcatty.is_kitty());
+
+    // Edit...that didn't silence warnings!
+}
