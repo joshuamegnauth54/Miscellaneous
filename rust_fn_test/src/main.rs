@@ -20,7 +20,7 @@ fn math_stuff() {
     );
 
     let norm = Normal::new(NORM_MEAN, NORM_STD).unwrap();
-    let numbers = norm.sample_iter(&mut rng).take(1000).collect();
+    let numbers: Vec<f64> = norm.sample_iter(&mut rng).take(1000).collect();
     println!("Mean: {}", mean(&numbers));
     println!(
         "Variance: {:.1} Std. Dev.: {:.1}",

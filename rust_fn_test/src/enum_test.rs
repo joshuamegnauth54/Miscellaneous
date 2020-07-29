@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Pokemans {
     Pikachu = 25,
     Vaporeon = 134,
@@ -26,10 +26,7 @@ impl Pokemans {
     }
 
     pub fn is_giraffe(&self) -> bool {
-        match self {
-            Pokemans::Girafarig => true,
-            _ => false,
-        }
+        *self == Pokemans::Girafarig
     }
 
     pub fn generation(&self) -> u32 {
