@@ -48,7 +48,7 @@ impl Game {
         while self.frame.handle_quit_input() {
             self.frame.reset();
             self.frame.draw_border();
-            self.frame.draw_ball(&mut self.ball);
+            self.frame.draw_ball(&self.ball);
             self.frame.update();
             self.step();
         }
@@ -86,6 +86,7 @@ impl Frame {
     fn new(sleep_duration: i32) -> Frame {
         let window = initscr();
         window.timeout(sleep_duration);
+        noecho();
         Frame { window }
     }
 
