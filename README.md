@@ -17,3 +17,5 @@ The tutorials/books include:
 * [Michael Snoyman's](https://snoyman.com) excellent, accelerated Rust tutorials.
 * The [Rust Programming Language](https://doc.rust-lang.org/book) book.
 * Probably the [Rust Cookbook](https://rust-lang-nursery.github.io/rust-cookbook) too.
+
+With that said, I **never** copy code wholesale from tutorials hence why I like backing up some of what I played with in terms of Rust.
